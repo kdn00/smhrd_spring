@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans  xmlns="http://www.springframework.org/schema/beans"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd
+   http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd"
+   xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	
+	<!-- DB 연결을 위한 API(HikariCP)
+		DB가 매번 커넥션하고 끊고 하는 일이 자원 소모가 심하기 때문에
+		메모리에다가 커넥션을 만들어 놓고, 연결 되어 있는 커넥션을 재활용하는 방식이
+		커넥션 풀(Connection Pool)이다.
+	 -->
+	 
+	<!-- DB에 연결하는 정보 4가지 넣기 -->
+	 
+	<!-- 히카리 CP 빈 등록 -->
+	<!-- bean : 객체를 만드는 태그 -->
+	<!-- mysql 라이브러리 5버전 이상에는 url 뒤에 다른 설정을 해줘야 한다. -->
+	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/mysql?useSSL=false&amp;serverTimezone=UTC"></property>
+		<property name="username" value="root"></property>
+		<property name="password" value="12345"></property>
+	</bean>	
+		
+	<!-- 히카리 CP 설정 -->
+	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+		<constructor-arg ref="hikariConfig"/>
+	</bean>
+	
+	<!-- BoardMapper(interface)의 구현 클래스 생성
+		SqlSessionFactoryBean(SQL문을 실행하는 API)
+	-->
+	<bean class="org.mybatis.spring.SqlSessionFactoryBean">
+	    <property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<!-- 어떤 mapper가 일을 하느냐? 
+		scan : Mapper interface들을 메모리에 올리는 것
+	-->
+	<!-- myBatis로 DB를 이용하려면 mapper 패키지 안에서 맵퍼를 표시해야 함 -->
+	<mybatis-spring:scan base-package="kr.board.mapper"/>
+	
+	
+</beans>
